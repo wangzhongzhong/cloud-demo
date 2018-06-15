@@ -1,0 +1,650 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dnt.cloud.demo.dao.MerchantReportDAO">
+	<resultMap id="BaseResultMap" type="com.dnt.cloud.demo.model.NrcReport">
+		<result column="merchant_ID" jdbcType="BIGINT" property="merchantId" />
+		<result column="merchantName" jdbcType="VARCHAR" property="merchantName" />
+		<result column="regionId" jdbcType="BIGINT" property="regionId" />
+		<result column="regionName" jdbcType="VARCHAR" property="regionName" />
+		<result column="store_ID" jdbcType="BIGINT" property="storeId" />
+		<result column="storeName" jdbcType="VARCHAR" property="storeName" />
+		<result column="deviceId" jdbcType="BIGINT" property="deviceId" />
+		<result column="deviceName" jdbcType="VARCHAR" property="deviceName" />
+		<result column="spuId" jdbcType="BIGINT" property="spuId" />
+		<result column="spuName" jdbcType="VARCHAR" property="spuName" />
+
+		<result column="flowData" jdbcType="INTEGER" property="flowData" />
+		<result column="orderData" jdbcType="INTEGER" property="orderData" />
+		<result column="payData" jdbcType="INTEGER" property="payData" />
+		<result column="conversionRates" jdbcType="INTEGER" property="conversionRates" />
+
+		<result column="statisticsDate" jdbcType="TIMESTAMP" property="statisticsDate" />
+		<result column="statisticsHour" jdbcType="VARCHAR" property="statisticsHour" />
+		<result column="queryTimeFlag" jdbcType="VARCHAR" property="queryTimeFlag" />
+		<result column="visitType" jdbcType="VARCHAR" property="visitType" />
+		<result column="categoryName" jdbcType="VARCHAR" property="categoryName" />
+	</resultMap>
+
+	<select id="queryMerchantReportForDays" resultMap="BaseResultMap">
+		SELECT
+		rf.merchant_ID,
+		m.name merchantName,
+		<if test="regionId!=null">
+			rf.REGION_ID,
+			r.name regionName,
+		</if>
+		<if test="storeId!=null ">
+			rf.store_ID,
+			s.name storeName,
+		</if>
+		<if test=" deviceId != null">
+			rf.device_ID,
+			d.name deviceName,
+		</if>
+		rf.flowData,
+		<if test="queryTimeFlag=='H'.toString()">
+			DATE_FORMAT(rf.statisticsDate, '%h:00') statisticsHour,
+		</if>
+		ro.orderData,
+		ro.payData,
+		ro.payAmout,
+		rf.statisticsDate
+		FROM
+		(
+		SELECT
+		f.merchant_ID,
+		<if test="regionId!=null">
+			r.id REGION_ID,
+		</if>
+		<if test="storeId!=null ">
+			f.store_ID,
+		</if>
+		<if test=" deviceId != null">
+			f.device_ID,
+		</if>
+		SUM(f.VISIT_NUM) flowData,
+		<if test="queryTimeFlag=='D'.toString()">
+			DATE_FORMAT(f.GMT_CREATE, '%Y-%m-%d')
+		</if>
+		<if test="queryTimeFlag=='H'.toString()">
+			DATE_FORMAT(f.GMT_CREATE, '%Y-%m-%d %h')
+		</if>
+		statisticsDate
+		FROM
+		orders.nrc_flow f
+		<if test="regionId!=null">
+			left join mims.nrc_store s on s.ID = f.store_ID
+			left join mims.nrc_region r on r.ID = s.REGION_ID and r.merchant_id =
+			f.merchant_ID
+		</if>
+		WHERE
+	    	<![CDATA[  
+		        date_format(f.GMT_CREATE,'%Y-%m-%d') >= #{beginDateStr}
+		            AND date_format(f.GMT_CREATE,'%Y-%m-%d') < #{endDateStr}
+		    	]]>
+		AND f.merchant_ID = #{merchantId,jdbcType=BIGINT}
+		<if test="regionId!=null">
+			AND r.ID = #{regionId,jdbcType=BIGINT}
+		</if>
+		<if test="storeId!=null">
+			AND f.store_ID = #{storeId,jdbcType=BIGINT}
+		</if>
+		<if test="deviceId != null">
+			AND f.device_ID = #{deviceId,jdbcType=BIGINT}
+		</if>
+		GROUP BY f.merchant_ID ,
+		<if test="regionId!=null">
+			r.id ,
+		</if>
+		<if test="storeId!=null ">
+			f.store_ID ,
+		</if>
+		<if test=" deviceId != null">
+			f.device_ID,
+		</if>
+		<if test="queryTimeFlag=='D'.toString()">
+			DATE_FORMAT(f.GMT_CREATE, '%Y-%m-%d')
+		</if>
+		<if test="queryTimeFlag=='H'.toString()">
+			DATE_FORMAT(f.GMT_CREATE, '%Y-%m-%d %h')
+		</if>
+		order by statisticsDate
+		) rf
+		LEFT JOIN
+		(
+		SELECT
+		merchant_ID,
+		<if test="regionId!=null">
+			REGION_ID,
+		</if>
+		<if test="storeId!=null ">
+			store_ID,
+		</if>
+		<if test=" deviceId != null">
+			device_ID,
+		</if>
+		orderData,
+		SUM(payData) payData,
+		SUM(payAmout) payAmout,
+		statisticsDate
+		FROM
+		(
+		SELECT
+		o.merchant_ID,
+		<if test="regionId!=null">
+			r.id REGION_ID,
+		</if>
+		<if test="storeId!=null ">
+			o.store_ID,
+		</if>
+		<if test=" deviceId != null">
+			o.device_ID,
+		</if>
+		o.QTY orderData,
+		CASE
+		WHEN ORDER_STATUS = 'S' || ORDER_STATUS = 'D' THEN o.QTY
+		ELSE 0
+		END payData,
+		CASE
+		WHEN ORDER_STATUS = 'S' || ORDER_STATUS = 'D' THEN o.TOTAL_PRICE
+		ELSE 0
+		END payAmout,
+		<if test="queryTimeFlag=='D'.toString()">
+			DATE_FORMAT(o.GMT_CREATE, '%Y-%m-%d')
+		</if>
+		<if test="queryTimeFlag=='H'.toString()">
+			DATE_FORMAT(o.GMT_CREATE, '%Y-%m-%d %h')
+		</if>
+		statisticsDate
+		FROM
+		orders.nrc_order o
+		<if test="regionId!=null">
+			left join mims.nrc_store s on s.ID = o.store_ID
+			left join mims.nrc_region r on r.ID = s.REGION_ID and r.merchant_id =
+			o.merchant_ID
+		</if>
+		WHERE
+				    	<![CDATA[  
+					        date_format(o.GMT_CREATE,'%Y-%m-%d') >= #{beginDateStr}
+					            AND date_format(o.GMT_CREATE,'%Y-%m-%d') < #{endDateStr}
+					    ]]>
+		AND o.merchant_ID = #{merchantId,jdbcType=BIGINT}
+		<if test="regionId!=null">
+			AND r.ID = #{regionId,jdbcType=BIGINT}
+		</if>
+		<if test="storeId!=null">
+			AND o.store_ID = #{storeId,jdbcType=BIGINT}
+		</if>
+		<if test="deviceId != null">
+			AND o.device_ID = #{deviceId,jdbcType=BIGINT}
+		</if>
+		) ro
+		GROUP BY merchant_ID ,
+		<if test="regionId!=null">
+			REGION_ID ,
+		</if>
+		<if test="storeId!=null ">
+			store_ID ,
+		</if>
+		<if test=" deviceId != null">
+			device_ID,
+		</if>
+		statisticsDate
+		) ro
+		ON rf.merchant_ID = ro.merchant_ID
+		<if test="storeId!=null ">
+			AND ro.store_ID = rf.store_ID
+		</if>
+		<if test=" deviceId != null">
+			AND ro.device_ID = rf.device_ID
+		</if>
+		AND rf.statisticsDate = ro.statisticsDate
+		<if test="regionId!=null">
+			left join mims.nrc_region r on r.id = rf.REGION_ID
+		</if>
+		<if test="storeId!=null ">
+			left join mims.nrc_store s on rf.store_ID = s.ID
+		</if>
+		<if test=" deviceId != null">
+			left join mims.nrc_device d on rf.device_ID = d.ID
+		</if>
+		left join mims.nrc_merchant m on rf.merchant_ID = m.ID
+	</select>
+
+	<select id="querySpuTopNReport" resultMap="BaseResultMap">
+		SELECT
+		rf.merchant_ID,
+		m.name merchantName,
+		<if test="regionId!=null">
+			rf.REGION_ID,
+			r.name regionName,
+		</if>
+		<if test="storeId!=null">
+			rf.store_ID,
+			s.name storeName,
+		</if>
+		<if test="deviceId!=null">
+			rf.device_ID,
+			d.name deviceName,
+		</if>
+		rf.SPU_ID,
+		spu.SPU_name spuName,
+		rf.flowData,
+		ro.orderData,
+		ro.payData,
+		ro.payAmout
+		FROM
+		(
+		SELECT
+		f.merchant_ID,
+		<if test="regionId!=null">
+			r.id REGION_ID,
+		</if>
+		<if test="storeId!=null">
+			f.store_ID,
+		</if>
+		<if test="deviceId!=null">
+			f.device_ID,
+		</if>
+		f.SPU_ID,
+		SUM(f.VISIT_NUM) flowData
+		FROM
+		orders.nrc_flow f
+		<if test="regionId!=null">
+			left join mims.nrc_store s on s.ID = f.store_ID
+			left join mims.nrc_region r on r.ID = s.REGION_ID and r.merchant_id =
+			f.merchant_ID
+		</if>
+		WHERE
+		    	<![CDATA[ 
+			        date_format(f.GMT_CREATE,'%Y-%m-%d') >= #{beginDateStr}
+			            AND date_format(f.GMT_CREATE,'%Y-%m-%d') < #{endDateStr}  
+		    	]]>
+		AND f.merchant_ID = #{merchantId,jdbcType=BIGINT}
+		<if test="regionId!=null">
+			AND r.ID = #{regionId,jdbcType=BIGINT}
+		</if>
+		<if test="storeId!=null">
+			AND f.store_ID = #{storeId,jdbcType=BIGINT}
+		</if>
+		<if test="deviceId != null">
+			AND f.device_ID = #{deviceId,jdbcType=BIGINT}
+		</if>
+		GROUP BY f.merchant_ID
+		<if test="regionId!=null">
+			, r.id
+		</if>
+		<if test="storeId!=null">
+			, f.store_ID
+		</if>
+		<if test="deviceId!=null">
+			, f.device_ID
+		</if>
+		, f.SPU_ID
+		) rf
+		LEFT JOIN
+		(
+		SELECT
+		merchant_ID,
+		<if test="regionId!=null">
+			REGION_ID,
+		</if>
+		<if test="storeId!=null">
+			store_ID,
+		</if>
+		<if test="deviceId!=null">
+			device_ID,
+		</if>
+		SPU_ID,
+		orderData,
+		SUM(payData) payData,
+		SUM(payAmout) payAmout
+		FROM
+		(
+		SELECT
+		o.merchant_ID,
+		<if test="regionId!=null">
+			r.id REGION_ID,
+		</if>
+		<if test="storeId!=null">
+			o.store_ID,
+		</if>
+		<if test="deviceId!=null">
+			o.device_ID,
+		</if>
+		od.SPU_ID,
+		od.QTY orderData,
+		CASE
+		WHEN o.ORDER_STATUS = 'S' || o.ORDER_STATUS = 'D' THEN od.QTY
+		ELSE 0
+		END payData,
+		CASE
+		WHEN o.ORDER_STATUS = 'S' || o.ORDER_STATUS = 'D' THEN od.QTY*od.AMOUNT
+		ELSE 0
+		END payAmout
+		FROM
+		orders.nrc_order o
+		left join orders.nrc_order_detail od on o.id = od.ORDER_ID
+		<if test="regionId!=null">
+			left join mims.nrc_store s on s.ID = o.store_ID
+			left join mims.nrc_region r on r.ID = s.REGION_ID and r.merchant_id =
+			o.merchant_ID
+		</if>
+		WHERE 
+					    	<![CDATA[ 
+						        date_format(o.GMT_CREATE,'%Y-%m-%d') >= #{beginDateStr}
+						            AND date_format(o.GMT_CREATE,'%Y-%m-%d') < #{endDateStr}
+		         			]]>
+		AND o.merchant_ID = #{merchantId,jdbcType=BIGINT}
+		<if test="regionId!=null">
+			AND r.ID = #{regionId,jdbcType=BIGINT}
+		</if>
+		<if test="storeId!=null">
+			AND o.store_ID = #{storeId,jdbcType=BIGINT}
+		</if>
+		<if test="deviceId != null">
+			AND o.device_ID = #{deviceId,jdbcType=BIGINT}
+		</if>
+		) ro
+		GROUP BY merchant_ID
+		<if test="regionId!=null">
+			, REGION_ID
+		</if>
+		<if test="storeId!=null">
+			, store_ID
+		</if>
+		<if test="deviceId!=null">
+			, device_ID
+		</if>
+		, SPU_ID
+		) ro
+		ON rf.merchant_ID = ro.merchant_ID
+		<if test="storeId!=null">
+			AND ro.store_ID = rf.store_ID
+		</if>
+		<if test="deviceId!=null">
+			AND ro.device_ID = rf.device_ID
+		</if>
+		AND rf.SPU_ID = ro.SPU_ID
+		left join mims.nrc_merchant m on rf.merchant_ID = m.ID
+		<if test="regionId!=null">
+			left join mims.nrc_region r on r.id = rf.REGION_ID
+		</if>
+		<if test="storeId!=null">
+			left join mims.nrc_store s on rf.store_ID = s.ID
+		</if>
+		<if test="deviceId!=null">
+			left join mims.nrc_device d on rf.device_ID = d.ID
+		</if>
+		left join spums.nrc_spu spu on rf.SPU_ID = spu.id
+		order by rf.flowData
+	</select>
+	<select id="querySpuReport" resultMap="BaseResultMap">
+		SELECT
+		rf.SPU_ID,
+		spu.spu_name,
+		<if test="regionId!=null">
+			rf.REGION_ID,
+			r.name regionName,
+		</if>
+		rf.merchant_ID,
+		m.name merchantName,
+		<if test="storeId!=null">
+			rf.store_ID,
+			s.name storeName,
+		</if>
+		<if test="deviceId!=null">
+			rf.device_ID,
+			d.name deviceName,
+		</if>
+		rf.flowData,
+		ro.orderData,
+		ro.payData,
+		ro.payAmout,
+		<if test="queryTimeFlag=='H'.toString()">
+			DATE_FORMAT(rf.statisticsDate, '%h:00') statisticsHour,
+		</if>
+		rf.statisticsDate
+		FROM
+		(
+		SELECT
+		f.SPU_ID,
+		f.merchant_ID,
+		<if test="regionId!=null">
+			r.id REGION_ID,
+		</if>
+		<if test="storeId!=null">
+			f.store_ID,
+		</if>
+		<if test="deviceId!=null">
+			f.device_ID,
+		</if>
+		SUM(f.VISIT_NUM) flowData,
+		<if test="queryTimeFlag=='D'.toString()">
+			DATE_FORMAT(f.GMT_CREATE, '%Y-%m-%d')
+		</if>
+		<if test="queryTimeFlag=='H'.toString()">
+			DATE_FORMAT(f.GMT_CREATE, '%Y-%m-%d %h')
+		</if>
+		statisticsDate
+		FROM
+		orders.nrc_flow f
+		<if test="regionId!=null">
+			left join mims.nrc_store s on s.ID = f.store_ID
+			left join mims.nrc_region
+			r on r.ID = s.REGION_ID and r.merchant_id = f.merchant_ID
+		</if>
+		WHERE
+	    	<![CDATA[
+		        date_format(f.GMT_CREATE,'%Y-%m-%d') >= '2017-04-01'
+		            AND date_format(f.GMT_CREATE,'%Y-%m-%d') < '2017-07-01' 
+	    	]]>
+		AND f.merchant_ID = 2
+		<if test="regionId!=null">
+			AND r.id = #{regionId,jdbcType=BIGINT}
+		</if>
+		<if test="storeId!=null">
+			AND f.store_ID = #{storeId,jdbcType=BIGINT}
+		</if>
+		<if test="deviceId!=null">
+			AND f.device_ID = #{deviceId,jdbcType=BIGINT}
+		</if>
+		GROUP BY f.SPU_ID,f.merchant_ID
+		<if test="regionId!=null">
+			, s.region_id
+		</if>
+		<if test="storeId!=null">
+			,f.store_ID
+		</if>
+		<if test="deviceId!=null">
+			, f.device_ID
+		</if>
+		<if test="queryTimeFlag=='D'.toString()">
+			,DATE_FORMAT(f.GMT_CREATE, '%Y-%m-%d')
+		</if>
+		<if test="queryTimeFlag=='H'.toString()">
+			,DATE_FORMAT(f.GMT_CREATE, '%Y-%m-%d %h')
+		</if>
+		order by f.SPU_ID,statisticsDate
+		) rf
+		LEFT JOIN
+		(
+		SELECT
+		SPU_ID,
+		merchant_ID,
+		<if test="regionId!=null">
+			REGION_ID,
+		</if>
+		<if test="storeId!=null">
+			store_ID,
+		</if>
+		<if test="deviceId!=null">
+			device_ID,
+		</if>
+		orderData,
+		SUM(payData) payData,
+		SUM(payAmout) payAmout,
+		statisticsDate
+		FROM
+		(
+		SELECT
+		od.SPU_ID,
+		o.merchant_ID,
+		<if test="regionId!=null">
+			s.region_id,
+		</if>
+		<if test="storeId!=null">
+			o.store_ID,
+		</if>
+		<if test="deviceId!=null">
+			o.device_ID,
+		</if>
+		o.QTY orderData,
+		CASE
+		WHEN o.ORDER_STATUS = 'S' || o.ORDER_STATUS = 'D' THEN o.QTY
+		ELSE 0
+		END payData,
+		CASE
+		WHEN o.ORDER_STATUS = 'S' || o.ORDER_STATUS = 'D' THEN o.TOTAL_PRICE
+		ELSE 0
+		END payAmout,
+		<if test="queryTimeFlag=='D'.toString()">
+			DATE_FORMAT(o.GMT_CREATE, '%Y-%m-%d')
+		</if>
+		<if test="queryTimeFlag=='H'.toString()">
+			DATE_FORMAT(o.GMT_CREATE, '%Y-%m-%d %h')
+		</if>
+		statisticsDate
+		FROM
+		orders.nrc_order o
+		left join orders.nrc_order_detail od on o.ID = od.ORDER_ID
+		<if test="regionId!=null">
+			left join mims.nrc_store s on s.ID = o.store_ID
+			left join mims.nrc_region r on r.ID = s.REGION_ID and r.merchant_id =
+			o.merchant_ID
+		</if>
+		WHERE 
+				    	<![CDATA[
+							date_format(o.GMT_CREATE,'%Y-%m-%d') >= '2017-04-01'
+					            AND date_format(o.GMT_CREATE,'%Y-%m-%d') < '2017-07-01' 
+				    	]]>
+		AND o.merchant_ID = 2
+		<if test="regionId!=null">
+			AND r.id = #{regionId,jdbcType=BIGINT}
+		</if>
+		<if test="storeId!=null">
+			AND o.store_ID = #{storeId,jdbcType=BIGINT}
+		</if>
+		<if test="deviceId!=null">
+			AND o.device_ID = #{deviceId,jdbcType=BIGINT}
+		</if>
+
+		) ro
+		GROUP BY SPU_ID,merchant_ID
+		<if test="regionId!=null">
+			, REGION_ID
+		</if>
+		<if test="storeId!=null">
+			, store_ID
+		</if>
+		<if test="deviceId!=null">
+			, device_ID
+		</if>
+		, statisticsDate
+		) ro
+		ON rf.spu_id = ro.spu_id
+		AND rf.merchant_ID = ro.merchant_ID
+		<if test="regionId!=null">
+			AND rf.region_id = ro.region_id
+		</if>
+		<if test="storeId!=null">
+			AND ro.store_ID = rf.store_ID
+		</if>
+		<if test="deviceId!=null">
+			AND ro.device_ID = rf.device_ID
+		</if>
+		AND rf.statisticsDate = ro.statisticsDate
+		left join mims.nrc_merchant m on rf.merchant_ID = m.ID
+		<if test="regionId!=null">
+			left join mims.nrc_region r on rf.region_ID = r.ID
+		</if>
+		<if test="storeId!=null">
+			left join mims.nrc_store s on rf.store_ID = s.ID
+		</if>
+		<if test="deviceId!=null">
+			left join mims.nrc_device d on rf.device_ID = d.ID
+		</if>
+		left join spums.nrc_spu spu on rf.spu_id = spu.id
+
+	</select>
+	
+	<!-- 按照时间来进行查询出对应的数据 -->
+	<select id="queryRfidBySpuIdBytime" resultMap="BaseResultMap">
+	<![CDATA[
+		SELECT 
+		    SUM(f.VISIT_NUM) flowData,
+		    f.SPU_ID AS spuId,
+		    p.spu_name AS spuName,
+		    DATE_FORMAT(f.GMT_CREATE, '%H') AS statisticsHour
+		FROM
+		    orders.nrc_flow f
+		        LEFT JOIN
+		    spums.nrc_spu p ON p.id = f.SPU_ID
+		WHERE
+		    f.visitType = 'RFID'
+		        AND DATE_FORMAT(f.GMT_CREATE, '%Y-%m-%d') = #{time,jdbcType=VARCHAR}
+		        AND f.GMT_CREATE >= DATE_FORMAT(f.GMT_CREATE, '%y-%m-%d 09:00:00')
+				AND f.GMT_CREATE <= DATE_FORMAT(f.GMT_CREATE, '%y-%m-%d 22:59:00')
+				AND f.device_id = 120
+		GROUP BY spuId , statisticsHour , spuName
+	]]>
+	</select>
+	
+	<!-- 按照时间来进行查询出对应的数据 -->
+	<select id="queryRfidClickBytime" resultMap="BaseResultMap">
+	<![CDATA[
+		SELECT 
+		    SUM(f.VISIT_NUM) flowData,
+		    f.device_ID AS deviceId,
+		    d.name AS deviceName,
+		    DATE_FORMAT(f.GMT_CREATE, '%H') AS statisticsHour
+		FROM
+		    orders.nrc_flow f
+		        LEFT JOIN
+		    mims.nrc_device d ON d.id = f.device_ID
+		WHERE
+		    f.visitType = 'CLICK'
+		        AND DATE_FORMAT(f.GMT_CREATE, '%Y-%m-%d') = #{time,jdbcType=VARCHAR}
+		        AND f.GMT_CREATE >= DATE_FORMAT(f.GMT_CREATE, '%y-%m-%d 09:00:00')
+		        AND f.GMT_CREATE <= DATE_FORMAT(f.GMT_CREATE, '%y-%m-%d 22:59:00')
+		        AND f.device_id = 120
+		GROUP BY deviceId , statisticsHour , deviceName
+	]]>
+	</select>
+	
+	<!-- 查询出点击的所有总数 -->
+	<select id="queryRfidClickCount" resultMap="BaseResultMap">
+		<![CDATA[
+			SELECT 
+			    SUM(f.VISIT_NUM) flowData,
+			    f.visitType AS visitType
+			FROM
+			    orders.nrc_flow f
+			        LEFT JOIN
+			    mims.nrc_device d ON d.id = f.device_ID
+			WHERE
+			    f.visitType in ('CLICK','RFID')
+			        AND DATE_FORMAT(f.GMT_CREATE, '%Y-%m-%d') = #{time,jdbcType=VARCHAR}
+			        AND f.GMT_CREATE >= DATE_FORMAT(f.GMT_CREATE, '%y-%m-%d 09:00:00')
+			        AND f.GMT_CREATE <= DATE_FORMAT(f.GMT_CREATE, '%y-%m-%d 22:59:00')
+	                AND f.device_ID = 120
+			GROUP BY visitType
+		]]>
+	</select>
+	
+</mapper>
+
+
+
+
+

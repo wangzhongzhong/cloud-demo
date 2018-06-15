@@ -1,0 +1,111 @@
+<link rel="shortcut icon" href="${rc.contextPath}/images/dnt.png" type="image/x-icon" />
+<div class="navbar navbar-fixed-top">
+            <div class="navbar-inner" style="height:40px">
+                <div class="container-fluid" style="background-color: #22252B;height:40px">
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse"> <span class="icon-bar"></span>
+                     <span class="icon-bar"></span>
+                     <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="#"><p style="font-family: fantasy;font-size: 20px">客流云系统</p></a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav pull-right">
+                            <li class="dropdown">
+                                <a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">
+                                	<#if userName??> 
+                                		<i class="icon-user"></i> ${userName} <i class="caret"></i>
+                                	</#if>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a tabindex="-1" href="${rc.contextPath}/user/viewUser?userId=${userId}">账户信息</a>
+                                    </li>
+                                    <li class="divider"></li>
+                                    <li>
+                                        <a tabindex="-1" href="${rc.contextPath}/user/logout">退出</a>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <ul class="nav">
+                            <li class="" id="indexLi">
+                                	<a style="text-shadow:0 0px 0" href="${rc.contextPath}/indexT">
+                                		<span style="color:#fff">首页</span>
+                                	</a>
+                            </li>
+                            <#if userType??>
+                            	<#if userType=='SA'>
+	                            <li class="dropdown" id="sys_setting_li">
+	                                <a href="${rc.contextPath}/merchant/queryMerchantList" data-toggle="dropdown" class="dropdown-toggle" style="text-shadow:0 0px 0">
+	                                <span style="color:#fff">系统设置</span> 
+	                                <b class="caret"></b>
+	
+	                                </a>
+	                                <ul class="dropdown-menu" id="menu1">
+	                                    <li>
+	                                        <a href="${rc.contextPath}/merchant/queryMerchantList">商户管理</i>
+	
+	                                        </a>
+	                                    </li>
+	                                    <li>
+	                                        <a href="${rc.contextPath}/user/queryUserList">用户设置</a>
+	                                    </li>
+	                                </ul>
+	                            </li>
+	                            </#if>
+	                            <li class="dropdown" id="flowLi">
+	                                <a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown" style="text-shadow:0 0px 0">
+	                                <span style="color:#fff">客流分析</span> 
+	                                <i class="caret"></i>
+	
+	                                </a>
+	                                <ul class="dropdown-menu">
+	                                    <li id="realTimeLi">
+	                                        <a tabindex="-1" href="${rc.contextPath}/report/viewRealTimeReport">实时看板</a>
+	                                    </li>
+	                                    <li class="divider"></li>
+	                                   <li>
+	                                        <a tabindex="-1" href="${rc.contextPath}/report/viewHumanTrafficReport">客流量报表</a>
+	                                    </li>
+	                                      <li class="divider"></li>
+	                                   <li>
+	                                        <a tabindex="-1" href="${rc.contextPath}/report/viewUsageRateReport">转换率报表</a>
+	                                    </li>
+	                                    <li class="divider"></li>
+	                                    <li>
+	                                        <a tabindex="-1" href="${rc.contextPath}/report/viewCamerCountDayHuman">客流量汇总报表</a>
+	                                    </li>
+	                                     <li class="divider"></li>
+	                                    <li>
+	                                        <a tabindex="-1" href="${rc.contextPath}/report/viewCamerCountDayUsage">转换率汇总报表</a>
+	                                    </li>
+	                                    <li class="divider"></li>
+	                                    <li>
+	                                        <a tabindex="-1" href="${rc.contextPath}/report/viewRegionFocusNumberReport">区域关注人数报表</a>
+	                                    </li>
+	                                    <li class="divider"></li>
+	                                   <li>
+	                                        <a tabindex="-1" href="${rc.contextPath}/flow/queryFlowList">原始数据查询</a>
+	                                    </li>
+	                                </ul>
+	                            </li>
+	                            <li class="dropdown" id="dataLi">
+	                                <a href="${rc.contextPath}/region/queryRegionList" role="button" class="dropdown-toggle" data-toggle="dropdown" style="text-shadow:0 0px 0">
+									<span style="color:#fff">数据收集</span> 
+									<i class="caret"></i>
+	
+	                                </a>
+	                                <ul class="dropdown-menu">
+	                                    <li>
+	                                        <a href="${rc.contextPath}/region/queryRegionList">基本信息</a>
+	                                    </li>
+	                                    <li>
+	                                        <a tabindex="-1" href="${rc.contextPath}/holiday/queryHolidayList">节假日</a>
+	                                    </li>
+	                                </ul>
+	                            </li>
+                            </#if>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>

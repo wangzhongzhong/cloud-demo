@@ -1,0 +1,65 @@
+<div class="span2" id="sidebar">
+	<ul class="nav nav-list bs-docs-sidenav nav-collapse collapse">
+		<li class="dropdown">
+
+			<ul class="nav nav-list bs-docs-sidenav nav-collapse collapse">
+			
+				<#if flag ??>
+					<li class="dropdown" id="humanReport">
+						<a href="${rc.contextPath}/report/viewCamerCountDayHuman"> 
+							<i data-toggle="dropdown" class="icon-chevron-right"></i> 日客流量汇总报表
+						</a>
+					</li>
+					<li class="dropdown" id="humanWeekReport">
+					<a href="${rc.contextPath}/report/viewCamerCountWeekHuman"> 
+					<i data-toggle="dropdown" class="icon-chevron-right"></i> 周客流量汇总报表
+					</a>
+					</li>
+					<li class="dropdown" id="humanMonthReport">
+					<a href="${rc.contextPath}/report/viewCamerCountMonthHuman"> 
+					<i data-toggle="dropdown" class="icon-chevron-right"></i> 月客流量汇总报表
+					</a></li>
+					<li class="dropdown" id="dayUsageRate">
+					<a href="${rc.contextPath}/report/viewCamerCountDayUsage"> 
+					<i data-toggle="dropdown" class="icon-chevron-right"></i> 日转换率汇总报表
+					</a></li>
+					<li class="dropdown" id="weekUsageRate">
+					<a href="${rc.contextPath}/report/viewCamerCountWeekUsage"> 
+					<i data-toggle="dropdown" class="icon-chevron-right"></i> 周转换率汇总报表
+					</a></li>
+					<li class="dropdown" id="monthUsageRate">
+					<a href="${rc.contextPath}/report/viewCamerCountMonthUsage"> 
+					<i data-toggle="dropdown" class="icon-chevron-right"></i> 月转换率汇总报表
+					</a></li>
+				<#else>
+					<li class="dropdown" id="humanReport">
+					<a href="${rc.contextPath}/report/viewHumanTrafficReport"> 
+						<i data-toggle="dropdown" class="icon-chevron-right"></i> 日客流量报表
+					</a>
+					</li>
+					<li class="dropdown" id="humanWeekReport">
+					<a href="${rc.contextPath}/report/viewHumanTrafficWeekReport"> 
+					<i data-toggle="dropdown" class="icon-chevron-right"></i> 周客流量报表
+					</a>
+					</li>
+					<li class="dropdown" id="humanMonthReport">
+					<a href="${rc.contextPath}/report/viewHumanTrafficMonthReport"> 
+					<i data-toggle="dropdown" class="icon-chevron-right"></i> 月客流量报表
+					</a></li>
+					<li class="dropdown" id="dayUsageRate">
+					<a href="${rc.contextPath}/report/viewUsageRateReport"> 
+					<i data-toggle="dropdown" class="icon-chevron-right"></i> 日转换率报表
+					</a></li>
+					<li class="dropdown" id="weekUsageRate">
+					<a href="${rc.contextPath}/report/viewUsageRateWeekReport"> 
+					<i data-toggle="dropdown" class="icon-chevron-right"></i> 周转换率报表
+					</a></li>
+					<li class="dropdown" id="monthUsageRate">
+					<a href="${rc.contextPath}/report/viewUsageRateMonthReport"> 
+					<i data-toggle="dropdown" class="icon-chevron-right"></i> 月转换率报表
+					</a></li>
+				</#if>
+			</ul>
+		</li>
+	</ul>
+</div>

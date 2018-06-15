@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <!-- <meta http-equiv="refresh" content="10"> -->
+    <title>报表演示</title>
+	<script type="text/javascript" src="${rc.contextPath}/echarts.min.js"></script>
+	<script type="text/javascript" src="${rc.contextPath}/js/jquery.min.js"></script>
+	<script type="text/javascript" src="${rc.contextPath}/js/bootstrap.min.js"></script>
+	<!-- 3d饼图的js -->
+	<script src="https://img.hcharts.cn/highcharts/highcharts.js"></script>
+    <script src="https://img.hcharts.cn/highcharts/highcharts-3d.js"></script>
+    <script src="https://img.hcharts.cn/highcharts/modules/exporting.js"></script>
+    <script src="https://img.hcharts.cn/highcharts-plugins/highcharts-zh_CN.js"></script>
+	<script src="http://echarts.baidu.com/doc/example/timelineOption.js"></script> 
+	<style type="text/css">
+		.main{
+			position: absolute;
+			font-size: 25px;
+		    color:white;
+		    font-weight: bold;
+		}
+		#mainLeftTop {
+		    top: 150px;
+		    left: 1390px;
+		}
+		#mainRightTop{
+			top:150px;
+			left:1660px;
+		}
+		#mainLeftBottom{
+			top:340px;
+			left:1390px;
+		}
+		#mainRightBottom{
+			top:340px;
+			left:1660px;
+		}
+		#mainCountLeftTop{
+			top:210px;
+			left: 1405px;
+		}
+		#mainCountRightTop{
+			top:210px;
+			left:1675px;
+		}
+		#mainCountLeftBottom{
+			top: 400px;
+			left: 1397px
+		}
+		#mainCountRightBottom{
+			top: 400px;
+			left: 1670px
+		}
+	</style>
+</head>
+
+<body onload="test1(),test2(),test3(),test4(),test5(),test6(),refreshTime()" style="background:url('${rc.contextPath}/images/123.png') no-repeat;width: 100%;" >
+    <div id="container" style="width: 95%;height: 100%;margin-left: 90px;">
+    		<div>
+    			<div style="float: left;width: 440px;height: 40px;margin-top: 20px;">
+    				<img id="year1" alt="" src="">
+    				<img id="year2" alt="" src="">
+    				<img id="year3" alt="" src="">
+    				<img id="year4" alt="" src="">
+    				<img style="margin-bottom: 15px;" alt="" src="${rc.contextPath}/images/-1.png">
+    				<img id="month1" alt="" src="">
+    				<img id="month2" alt="" src="">
+    				<img style="margin-bottom: 15px;" alt="" src="${rc.contextPath}/images/-1.png">
+    				<img id="day1" alt="" src="">
+    				<img id="day2" alt="" src="">&nbsp;&nbsp;
+    				<img id="hour1" alt="" src="">
+    				<img id="hour2" alt="" src="">
+    				<img style="margin-bottom: 10px;" alt="" src="${rc.contextPath}/images/maohao.png">
+    				<img id="minute1" alt="" src="">
+    				<img id="minute2" alt="" src="">
+    				<img style="margin-bottom: 10px;" alt="" src="${rc.contextPath}/images/maohao.png">
+    				<img id="second1" alt="" src="">
+    				<img id="second2" alt="" src="">
+    			</div>
+    			<div style="float: left;width: 900px;">
+		    		<h1 style="color: white;text-align: center;">ELO展厅数据墙</h1>
+    			</div>
+    		</div>
+			<div id="main1" style="height: 430px;width: 700px;float: left;background: url('${rc.contextPath}/images/left_top.png') no-repeat;">
+	
+			</div>
+			<div id="main5" style="height: 430px;width: 500px;margin-left:5px; float: left;background: url('${rc.contextPath}/images/right_top.png') no-repeat;">
+				<div id="main5-1" style="height: 210px;width: 500px;float: left;"></div>
+				<div id="main5-2" style="height: 210px;width: 500px;float: left;"></div>
+			</div>
+			<div id="main3" style="height: 430px;width: 500px;margin-left:5px;float: left;background: url('${rc.contextPath}/images/right_top.png') no-repeat;">
+				<div id="main3-1" style="height: 430px;width: 500px;background: url('${rc.contextPath}/images/circle.png') no-repeat;">
+					<div class="main" id="mainLeftTop">RFID</div>
+					<div class="main" id="mainCountLeftTop"style="color: #ee7238;text-align: center;"></div>
+					<div class="main" id="mainRightTop">触控量</div>
+					<div class="main" id="mainCountRightTop" style="color: #ec39ca;text-align: center;"></div>
+					<div class="main" id="mainLeftBottom">经过量</div>
+					<div class="main" id="mainCountLeftBottom" style="color: #39a1e8;text-align: center;"></div>
+					<div class="main" id="mainRightBottom">关注量</div>
+					<div class="main" id="mainCountRightBottom" style="color: #3ad880;text-align: center;"></div>
+				</div>
+			</div>
+			<div id="main4" style="height: 470px;width: 950px;margin-top:10px; float: left;background: url('${rc.contextPath}/images/left_bottom.png') no-repeat;">
+	
+			</div>
+			<div id="main2" style="height: 470px;width: 760px;margin-left:5px; margin-top:10px; float: left;background: url('${rc.contextPath}/images/right_bottom.png') no-repeat;">
+	
+			</div>
+	</div>
+    
+    <script type="text/javascript">
+    
+    	var t7 = self.setInterval("refreshTime()", 1000);
+    
+    	//实时更新时间
+    	function refreshTime(){
+    		//获取当前的时间
+    		var date = new Date();
+    		//获取当前时间的年
+    		var year = date.getFullYear()+"";
+    		//获取当前的月份
+    		var month = date.getMonth()+1;
+    		//获取当前的日
+    		//var day = date.getDay();//周几
+    		var day = date.getDate();
+    		//获取当前的小时
+    		var hour = date.getHours();
+    		//获取当前的分钟
+    		var minute = date.getMinutes();
+    		//获取当前的秒
+    		var second = date.getSeconds();
+    		month = month < 10 ? ("0"+month) : (""+month);
+    		day = day < 10 ? ("0"+day) : (""+day);
+    		hour = hour < 10 ? ("0"+hour) : (""+hour);
+    		minute = minute < 10 ? ("0"+minute) : (""+minute);
+    		second = second < 10 ? ("0"+second) : (""+second);
+    		//处理一下年份
+    		for(var i=0;i<year.length;i++){
+    			//把year的img替换一下
+    			//console.log($('#year'+(i+1))[0].src);
+    			$('#year'+(i+1)).attr('src','${rc.contextPath}/images/'+year[i]+'.png')
+    		}
+    		//处理一下月份
+    		for(var i=0;i<month.length;i++){
+    			$('#month'+(i+1)).attr('src','${rc.contextPath}/images/'+month[i]+'.png')
+    		}
+    		//处理一下日
+    		for(var i=0;i<day.length;i++){
+    			$('#day'+(i+1)).attr('src','${rc.contextPath}/images/'+day[i]+'.png')
+    		}
+    		//处理一下小时
+    		for(var i=0;i<hour.length;i++){
+    			$('#hour'+(i+1)).attr('src','${rc.contextPath}/images/'+hour[i]+'.png')
+    		}
+    		//处理一下分钟
+    		for(var i=0;i<minute.length;i++){
+    			$('#minute'+(i+1)).attr('src','${rc.contextPath}/images/'+minute[i]+'.png')
+    		}
+    		//处理一下秒
+    		for(var i=0;i<second.length;i++){
+    			if(i==0){
+	    			$('#second1').attr('src','${rc.contextPath}/images/'+second[i]+'.png')
+    			}
+    			if(i==1){
+	    			$('#second2').attr('src','${rc.contextPath}/images/'+second[i]+'.png')
+    			}
+    		}
+    	}
+    	
+    	//定时器RFID查询
+    	var t1 = self.setInterval("test1()",5000);
+    	//定时器设备点击
+    	var t2 = self.setInterval("test2()",5000);
+    	//定时器客流
+    	var t3 = self.setInterval("test3()",5000);
+    	//定时器RFID,CLICK,PASS,FOCUS
+    	var t4 = self.setInterval("test4()", 5000);
+    	//定时器男女占比
+    	var t5 = self.setInterval("test5()",5000);
+    	//定时器年龄段占比
+    	var t6 = self.setInterval("test6()",5000);
+    	
+    	//年龄段占比
+    	function test6(){
+	    		var chart = Highcharts.chart('main5-2', {
+	    			chart: {
+	    					type: 'pie',
+	    					backgroundColor: 'rgba(255, 255, 255, 0)',  
+	    	                plotBorderColor : null,  
+	    	                plotBackgroundColor: null,
+	    					options3d: {
+	    							enabled: true,
+	    							alpha: 45,
+	    							beta: 0
+	    					}
+	    			},
+	    			title: {
+    					text: '',
+    					align:'left',
+    					style:{
+    						"color":'white',
+    						"fontWeight": 'bold'
+    						
+    					}
+    			},
+	    			exporting:{
+	    				buttons:{
+	    					contextButton:{
+	    						enabled:false
+	    					}
+	    				}
+	    			},
+	    			tooltip: {
+	    					pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>',
+	    					style:{
+	    						fontWeight:'bold'
+	    					}
+	    			},
+	    			plotOptions: {
+	    					pie: {
+	    							allowPointSelect: true,
+	    							cursor: 'pointer',
+	    							depth: 35,
+	    							dataLabels: {
+	    									enabled: true,
+	    									format: '{point.name}'
+	    							}
+	    					},
+	    					series:{
+	    						animation:false
+	    					}
+	    			},
+	    			series: [{
+		    				size: '80%',
+	    					type: 'pie',
+	    					name: '年龄段占比',
+	    					data: [
+	    							['15-20',   26.0],
+	    							['20-25',   36.0],
+	    							['25-30',   20.0],
+	    							['30-35',   10.0],
+	    							['35-40',   8.0],
+	    					],
+	    					colors:['rgb(124, 180, 235)','rgb(215,121,127)',
+						            'rgb(254, 182, 84)','rgb(200,200,169)',
+						            'rgb(131,175,155)','rgb(131,100,155)',
+						            'rgb(100,150,80)','rgb(230,160,180)']
+	    			}]
+	    	});
+    	}
+    	
+    	//男女占比
+    	function test5(){
+	    		var chart = Highcharts.chart('main5-1', {
+	    			chart: {
+	    					type: 'pie',
+	    					backgroundColor: 'rgba(255, 255, 255, 0)',  
+	    	                plotBorderColor : null,  
+	    	                plotBackgroundColor: null,
+	    					options3d: {
+	    							enabled: true,
+	    							alpha: 45,
+	    							beta: 0
+	    					}
+	    			},
+	    			exporting:{
+	    				buttons:{
+	    					contextButton:{
+	    						enabled:false
+	    					}
+	    				}
+	    			},
+	    			title: {
+	    					text: '进店性别年龄占比',
+	    					align:'left',
+	    					style:{
+	    						"color":'white',
+	    						"fontWeight": 'bold'
+	    						
+	    					}
+	    			},
+	    			tooltip: {
+	    					pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>',
+	    					style:{
+	    						fontWeight:'bold'
+	    					}
+	    			},
+	    			plotOptions: {
+	    					pie: {
+	    							allowPointSelect: true,
+	    							cursor: 'pointer',
+	    							depth: 35,
+	    							dataLabels: {
+	    									enabled: true,
+	    									format: '{point.name}'
+	    							}
+	    					},
+	    					series:{
+	    						animation:false
+	    					}
+	    			},
+	    			series: [{
+		    				size: '100%',
+	    					type: 'pie',
+	    					name: '性别占比',
+	    					data: [
+	    							['男',   45.0],
+	    							['女',   55.0]
+	    					],
+	    					colors:['rgb(124, 180, 235)','rgb(215,121,127)',
+								            'rgb(254, 182, 84)','rgb(200,200,169)',
+								            'rgb(131,175,155)','rgb(131,100,155)',
+								            'rgb(100,150,80)','rgb(230,160,180)']
+	    			}]
+	    	});
+    	}
+    	
+    	function test4(){
+    		$.ajax({
+    			url:'${rc.contextPath}/report/queryPassFocusCount?time=',
+    		    type:'get',
+    		    dataType:'json',
+    		    success:function(result){
+    		    	if(result != null){
+    		    		var jsonObj = eval(result);
+        		    	$("#mainCountLeftBottom").text(jsonObj.PASS)
+        		    	$("#mainCountRightBottom").text(jsonObj.FOCUS)
+        		    	$("#mainCountLeftTop").text(jsonObj.RFID)
+        		    	$("#mainCountRightTop").text(jsonObj.CLICK)
+    		    	}
+    		    }
+    		})
+    	}
+    	
+    	function test3(){
+    		$.ajax({
+    			url:'${rc.contextPath}/report/queryPassFocusTime?time=',
+    			type:'get',
+    			dataType:'json',
+    			success:function(result){
+    				if (result!="{}") {
+						var jsonObj = eval(result);
+						var titleData = new Array();
+						var lineData = new Array();
+						var i = 0;
+						var totalVal = new Array(); //总量名称
+						//横轴
+						var daArr = new Array();
+						for(var d=8;d<21;d++){
+							daArr[d] = d+1;
+						}
+						if(jsonObj != null){
+							for(var key in jsonObj){
+								titleData[i] = key;
+								lineData[i] = jsonObj[key];
+								var val = 0;
+								for(var n=0;n<lineData[i].length;n++){
+									val += parseInt(lineData[i][n]);
+									totalVal[i] = val;
+								}
+								i++;
+							}
+						}
+						//console.log(daArr);
+						var myChart = echarts.init(document.getElementById('main4'));
+						option = {
+								title:{
+									text:'人为分析客流',
+									textStyle:{
+										color:'white'
+									}
+								},
+								grid:{
+									x:'50',
+									y2:'50',
+									x2:'50'
+								},
+							    tooltip : {
+							        trigger: 'axis'
+							    },
+							    toolbox: {
+							        show : true,
+							        y: 'bottom',
+							        feature : {
+							        	 mark : {show: true},
+							        }
+							    },
+							    calculable : true,
+							    legend: {
+							        data:titleData,
+							        textStyle:{
+							        	color:'white',
+							        	fontWeight:'bold'
+							        },
+							        y:'20px'
+							    },
+							    xAxis : [
+							        {
+							            type : 'category',
+							            splitLine : {show : false},
+							            data : [
+							                    '9:00','10:00','11:00','12:00',
+							                    '13:00','14:00','15:00','16:00',
+							                    '17:00','18:00','19:00','20:00',
+							                    '21:00','22:00'],
+							          //设置轴线的属性
+							          axisLine:{
+							              lineStyle:{
+							                  color:'white'
+							              }
+							          } 
+							        }
+							    ],
+							    yAxis : [
+							        {
+							            type : 'value',
+							            position: 'right',
+							            axisLabel : {
+							                 formatter: '{value} 人'
+							            },
+							          //设置轴线的属性
+								        axisLine:{
+								            lineStyle:{
+								               color:'white'
+								            }
+								         } 
+							        },
+							        {
+							            type : 'value',
+							            name : '时间',
+							            axisLabel : {
+							                formatter: '{value} s'
+							            },
+							          //设置轴线的属性
+								        axisLine:{
+								            lineStyle:{
+								               color:'white'
+								            }
+								         } 
+							        }
+							    ],
+							    series : pushSeries2(titleData,lineData,totalVal),
+							    color: ['rgb(124, 180, 235)','rgb(215,121,127)',
+							            'rgb(254, 182, 84)','rgb(200,200,169)',
+							            'rgb(131,175,155)','rgb(131,100,155)',
+							            'rgb(100,150,80)','rgb(230,160,180)']
+							    
+							};
+						myChart.setOption(option);
+					}
+    			}
+    		})
+    	}
+    	
+    	
+    	function test2(){
+    		$.ajax({
+    			url:'${rc.contextPath}/report/getRfidClickByTime?time=',
+    			type:'get',
+    			dataType:'json',
+    			success:function(result){
+    				
+    				if (result!="{}") {
+						var jsonObj = eval(result);
+						var titleData = new Array();
+						var lineData = new Array();
+						var i = 0;
+						var totalVal = new Array(); //总量名称
+						//横轴
+						var daArr = new Array();
+						for(var d=8;d<21;d++){
+							daArr[d] = d+1;
+						}
+						if(jsonObj != null){
+							for(var key in jsonObj){
+								titleData[i] = key;
+								lineData[i] = jsonObj[key];
+								var val = 0;
+								for(var n=0;n<lineData[i].length;n++){
+									val += parseInt(lineData[i][n]);
+									totalVal[i] = val;
+								}
+								i++;
+							}
+						}
+						//console.log(daArr);
+						var myChart = echarts.init(document.getElementById('main2'));
+						option = {
+								title:{
+									text:'ELO展厅设备点击量',
+									textStyle:{
+										color:'white'
+									}
+								},
+								grid:{
+									x:'20',
+									y2:'50',
+									x2:'50'
+								},
+							    tooltip : {
+							        trigger: 'axis'
+							    },
+							    toolbox: {
+							        show : true,
+							        y: 'bottom',
+							        feature : {
+							        	 mark : {show: true},
+							        }
+							    },
+							    calculable : true,
+							    legend: {
+							        data:titleData,
+							        textStyle:{
+							        	color:'white',
+							        	fontWeight:'bold'
+							        },
+							        y:'20px'
+							    },
+							    xAxis : [
+							        {
+							            type : 'category',
+							            splitLine : {show : false},
+							            data : [
+							                    '9:00','10:00','11:00','12:00',
+							                    '13:00','14:00','15:00','16:00',
+							                    '17:00','18:00','19:00','20:00',
+							                    '21:00','22:00'],
+							           //设置轴线的属性
+									   axisLine:{
+										    lineStyle:{
+										        color:'white'
+										    }
+									   } 
+							        }
+							    ],
+							    yAxis : [
+							        {
+							            type : 'value',
+							            position: 'right',
+							            axisLabel : {
+							                 formatter: '{value} 人'
+							            },
+							          //设置轴线的属性
+										axisLine:{
+											lineStyle:{
+											    color:'white'
+											}
+										} 
+							        }
+							    ],
+							    series : pushSeries1(titleData,lineData,totalVal),
+							    color: ['#3ad880','#3aa5ed',
+							            '#00FFFF','#7FFF00',
+							            '#7CFC00','#DA70D6',
+							            '#FF0000','#FF6347']
+							    
+							};
+						myChart.setOption(option);
+					}
+				}
+    		});
+    	}
+    	
+    	function test1(){
+    		$.ajax({
+    			url:'${rc.contextPath}/report/getRfidByTime',
+    			type:'get',
+    			dataType:'json',
+    			success:function(result){
+    				
+    				if (result!="{}") {
+						var jsonObj = eval(result);
+						var titleData = new Array();
+						var lineData = new Array();
+						var i = 0;
+						var totalVal = new Array(); //总量名称
+						//横轴
+						var daArr = new Array();
+						for(var d=8;d<21;d++){
+							daArr[d] = d+1;
+						}
+						if(jsonObj != null){
+							for(var key in jsonObj){
+								titleData[i] = key;
+								lineData[i] = jsonObj[key];
+								var val = 0;
+								for(var n=0;n<lineData[i].length;n++){
+									val += parseInt(lineData[i][n]);
+									totalVal[i] = val;
+								}
+								i++;
+							}
+						}
+						//console.log(daArr);
+						var myChart = echarts.init(document.getElementById('main1'));
+						option = {
+								title:{
+									text:'ELO展厅RFID使用数',
+									textStyle:{
+										color:'white',
+									}
+								},
+								grid:{
+									x:'20',
+									y2:'50',
+									x2:'50'
+								},
+							    tooltip : {
+							        trigger: 'axis'
+							    },
+							    toolbox: {
+							        show : true,
+							        y: 'bottom',
+							        feature : {
+							        	 mark : {show: true},
+							        }
+							    },
+							    calculable : true,
+							    legend: {
+							        data:titleData,
+							        textStyle:{
+							        	color:'white',
+							        	fontWeight:'bold'
+							        },
+							        y:'22px'
+							    },
+							    xAxis : [
+							        {
+							            type : 'category',
+							            splitLine : {show : false},
+							            data : [
+							                    '9:00','10:00','11:00','12:00',
+							                    '13:00','14:00','15:00','16:00',
+							                    '17:00','18:00','19:00','20:00',
+							                    '21:00','22:00'],
+							           //设置轴线的属性
+										axisLine:{
+												lineStyle:{
+													 color:'white'
+												}
+										} 							            
+							        }
+							    ],
+							    yAxis : [
+							        {
+							            type : 'value',
+							            position: 'right',
+							            axisLabel : {
+							                 formatter: '{value} 人'
+							            },
+							          //设置轴线的属性
+										axisLine:{
+												lineStyle:{
+													 color:'white'
+												}
+										} 	
+							        }
+							    ],
+							    series : pushSeries3(titleData,lineData,totalVal),
+							    color: ['#3ad880','#3aa5ed',
+							            '#00FFFF','#7FFF00',
+							            '#7CFC00','#DA70D6',
+							            '#FF0000','#FF6347']
+							    
+							};
+						myChart.setOption(option);
+					}
+				}
+    		});
+    		
+    	}
+    	
+    	function pushSeries1(titleData,lineData,totalVal) {
+		    var serie = [];
+		    var dataArr = new Array(); 
+	        for(var i=0;i<totalVal.length;i++){
+	        	dataArr[i] = {value:totalVal[i], name: titleData[i]};
+	        }
+		    for(var i = 0; i < titleData.length; i++){
+		        var item = {
+		            name:titleData[i],
+		            smooth:true,  //这句就是让曲线变平滑的 
+		            type: 'line',
+		            data: lineData[i]
+		        }
+		        serie.push(item);
+		    };
+		    return serie;
+		}
+    	
+    	function pushSeries2(titleData,lineData,totalVal) {
+		    var serie = [];
+		    var dataArr = new Array(); 
+	        for(var i=0;i<totalVal.length;i++){
+	        	dataArr[i] = {value:totalVal[i], name: titleData[i]};
+	        }
+		    for(var i = 0; i < titleData.length; i++){
+		    	if(titleData[i].indexOf("时间")!=-1){
+		    		var item = {
+		    				name:titleData[i],
+				            smooth:true,  //这句就是让曲线变平滑的 
+				            type: 'line',
+				            yAxisIndex: 1,
+				            data: lineData[i]
+		    		}
+		    		serie.push(item);
+		    	}else{
+			        var item = {
+			            name:titleData[i],
+			            smooth:true,  //这句就是让曲线变平滑的 
+			            type: 'bar',
+			            stack: '总量',
+			            barWidth:'30px',
+			            itemStyle: {normal: {areaStyle: {type: 'default'}}},
+			            data: lineData[i]
+			            
+			        }
+			        serie.push(item);
+		    	}
+		    };
+		    return serie;
+		}
+    	
+    	function pushSeries3(titleData,lineData,totalVal) {
+		    var serie = [];
+		    var dataArr = new Array(); 
+	        for(var i=0;i<totalVal.length;i++){
+	        	dataArr[i] = {value:totalVal[i], name: titleData[i]};
+	        }
+		    for(var i = 0; i < titleData.length; i++){
+		        var item = {
+		            name:titleData[i],
+		            smooth:true,  //这句就是让曲线变平滑的 
+		            type: 'bar',
+		            stack: '总量',
+		            itemStyle: {normal: {areaStyle: {type: 'default'}}},
+		            data: lineData[i]
+		        }
+		        serie.push(item);
+		    };
+		    return serie;
+		}
+    </script>
+
+</body>
+</html>
